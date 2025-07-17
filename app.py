@@ -1,53 +1,43 @@
+import os
 import sys
 import whisper
-import youtube_transcript_api
 import yt_dlp
 
-ytt_api = youtube_transcript_api.YouTubeTranscriptApi()
 transcript_details = {}
-try:
-    # Use youtube subtitles
-    video_id = input("Video ID: ")
-    fetched_transcript = ytt_api.fetch(video_id)
 
-    for snippet in fetched_transcript:
-        transcript_details[round(snippet.start, 2)] = snippet.text.strip()
-        #print(snippet.text, snippet.start)
+video_id = input("Video ID: ")
 
-except youtube_transcript_api.TranscriptsDisabled:
-    # Download audio
-    ydl_opts = {
-        'format': 'bestaudio[ext=m4a]',
-        'outtmpl': 'temp_audio.m4a',
-        'quiet': True
-    }
-    
-    print("Downloading...")
-    
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([f"https://youtu.be/{video_id}"])
+# Download audio
+ydl_opts = {
+    'format': 'bestaudio[ext=m4a]',
+    'outtmpl': 'temp_audio.m4a',
+    'quiet': True
+}
 
-    audio_file = "temp_audio.m4a"
+print("Downloading...")
 
-    # Speech to text stuff
-    model = whisper.load_model("small").to("cuda")
-    
-    print("Transcribing audio...")
-    
-    result = model.transcribe(audio_file, word_timestamps=True)
-    for segment in result["segments"]:
-        timing = round(segment["start"], 2)
-        words = segment["text"]
-        
-        transcript_details[float(timing)] = words
-        #print(words, timing)
-        #print(f"{round(segment['start'], 2)}s \n{segment['text']}")
+with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+    ydl.download([f"https://youtu.be/{video_id}"])
 
-except youtube_transcript_api.VideoUnavailable:
-    sys.exit("Error: Invalid video.")
+audio_file = "temp_audio.m4a"
 
-except Exception as e:
-    sys.exit(f"Unexpected error: {e}")
+# Speech to text stuff
+model = whisper.load_model("small").cuda()
+
+print("Transcribing audio...")
+
+result = model.transcribe(audio_file, word_timestamps=True, fp16=True)
+for segment in result["segments"]:
+    start = round(float(segment["start"]), 2)
+    duration = round((float(segment["end"]) - start), 2)
+    words = segment["text"].strip()
+
+    info = [words, duration]
+    transcript_details[start] = info
+    #print(words, timing)
+    #print(f"{round(segment['start'], 2)}s \n{segment['text']}")
 
 
 print(transcript_details)
+
+os.remove(audio_file)
