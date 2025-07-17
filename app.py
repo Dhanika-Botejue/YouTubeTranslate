@@ -57,17 +57,21 @@ def translate(text, target_lang='es', source_lang='en'):
     except Exception as e:
         return f"Translation error: {str(e)}"
 
+def auto_transcribe():
+    global transcript_details
+
+    # Must put correct 'language code' e.g. Spanish is es and English is en
+    source = input("Source (original) language: ")
+    target = input("Language to translate to: ")
+
+    for key in transcript_details:
+        transcript_details[key].append(translate(transcript_details[key][0], target, source))
 
 transcript_details = {}
 get_video()
-# Must put correct 'language code' e.g. Spanish is es and English is en
-source = input("Language to translate from: ")
-target = input("Language to translate to: ")
 
 print("Translating...")
 
-for key in transcript_details:
-    transcript_details[key].append(translate(transcript_details[key][0], target, source))
-
+auto_transcribe()
 print(transcript_details)
 
