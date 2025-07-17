@@ -1,4 +1,5 @@
 import os
+import requests
 import sys
 import whisper
 import yt_dlp
@@ -38,8 +39,32 @@ def get_video():
         #print(f"{round(segment['start'], 2)}s \n{segment['text']}")
     os.remove(audio_file)
 
+def translate(text, target_lang='es', source_lang='en'):
+    try:
+        response = requests.get(
+            "https://api.mymemory.translated.net/get",
+            params={
+                "q": text,
+                "langpair": f"{source_lang}|{target_lang}",
+                "de": "dhanikabotejue@gmail.com",
+            }
+        )
+        return response.json()['responseData']['translatedText']
+    except Exception as e:
+        return f"Translation error: {str(e)}"
+
 
 transcript_details = {}
 get_video()
+
+# Must put correct 'language code' e.g. Spanish is es and English is en
+source = input("Language to translate from: ")
+target = input("Language to translate to: ")
+
+print("Translating...")
+
+for key in transcript_details:
+    transcript_details[key][0] = translate(transcript_details[key][0], target, source)
+
 print(transcript_details)
 
