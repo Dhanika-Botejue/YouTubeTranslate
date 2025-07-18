@@ -1,6 +1,7 @@
 from gtts import gTTS
 import os
 from pydub import AudioSegment
+from pydub.silence import detect_leading_silence
 import requests
 import sys
 import whisper
@@ -69,6 +70,12 @@ def auto_transcribe(source, target):
     for key in transcript_details:
         transcript_details[key].append(translate(transcript_details[key][0], target, source))
 
+def trim_silence(audio):
+    """Remove leading/trailing silence below threshold (in dBFS)"""
+    start_trim = detect_leading_silence(audio, silence_threshold=-40)
+    end_trim = detect_leading_silence(audio.reverse(), silence_threshold=-40)
+    return audio[start_trim:len(audio)-end_trim]
+
 def create_audio(target_lang):
     global transcript_details
 
@@ -79,7 +86,19 @@ def create_audio(target_lang):
         tts = gTTS(text=transcript_details[key][2], lang=target_lang)
         tts.save(temp_file)
 
-        clip = AudioSegment.from_mp3(temp_file)
+        # Match translation clip timing with original timing (adjust speed)
+        clip = trim_silence(AudioSegment.from_mp3(temp_file))
+        original_duration = transcript_details[key][1]
+        new_duration = clip.duration_seconds
+
+        boost_factor = new_duration / original_duration
+        
+        clip = clip._spawn(
+            clip.raw_data,
+            overrides={"frame_rate" : int(clip.frame_rate * boost_factor)}
+        )
+
+
         full_audio += clip
 
         os.remove(temp_file)
