@@ -1,4 +1,6 @@
+from gtts import gTTS
 import os
+from pydub import AudioSegment
 import requests
 import sys
 import whisper
@@ -11,16 +13,18 @@ def get_video():
     # Download audio
     ydl_opts = {
     'format': 'bestaudio[ext=m4a]',
-    'outtmpl': 'temp_audio.m4a',
+    'outtmpl': 'temp_audio.mp3',
     'quiet': True
     }
 
     print("Downloading...")
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([f"https://youtu.be/{video_id}"])
+    except yt_dlp.utils.DownloadError:
+        sys.exit("Invalid Youtube video id")
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([f"https://youtu.be/{video_id}"])
-
-    audio_file = "temp_audio.m4a"
+    audio_file = "temp_audio.mp3"
 
     # Speech to text stuff
     model = whisper.load_model("small").cuda()
@@ -41,7 +45,9 @@ def get_video():
         transcript_details[start] = info
         #print(words, timing)
         #print(f"{round(segment['start'], 2)}s \n{segment['text']}")
-    os.remove(audio_file)
+    
+    os.remove("temp_audio.mp3")
+    
 
 def translate(text, target_lang='es', source_lang='en'):
     try:
@@ -57,21 +63,45 @@ def translate(text, target_lang='es', source_lang='en'):
     except Exception as e:
         return f"Translation error: {str(e)}"
 
-def auto_transcribe():
+def auto_transcribe(source, target):
     global transcript_details
-
-    # Must put correct 'language code' e.g. Spanish is es and English is en
-    source = input("Source (original) language: ")
-    target = input("Language to translate to: ")
 
     for key in transcript_details:
         transcript_details[key].append(translate(transcript_details[key][0], target, source))
 
+def create_audio(target_lang):
+    global transcript_details
+
+    full_audio = AudioSegment.empty()
+
+    temp_file = "output.mp3"
+    for key in transcript_details:
+        tts = gTTS(text=transcript_details[key][2], lang=target_lang)
+        tts.save(temp_file)
+
+        clip = AudioSegment.from_mp3(temp_file)
+        full_audio += clip
+
+        os.remove(temp_file)
+
+
+    full_audio.export("combined.mp3", format="mp3")
+
+
 transcript_details = {}
 get_video()
 
-print("Translating...")
+# Must put correct 'language code' e.g. Spanish is es and English is en
+source = input("Source (original) language: ")
+target = input("Language to translate to: ")
 
-auto_transcribe()
-print(transcript_details)
+print("Translating...")
+auto_transcribe(source, target)
+
+print("Creating audio file...")
+create_audio(target)
+
+print("Enjoy!")
+#print(transcript_details)
+
 
