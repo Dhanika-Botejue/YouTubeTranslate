@@ -57,7 +57,7 @@ def translate(text, target_lang='es', source_lang='en'):
             params={
                 "q": text,
                 "langpair": f"{source_lang}|{target_lang}",
-                "de": "dhanikabotejue@gmail.com",
+                "de": "akinahd1@gmail.com",
             }
         )
         return response.json()['responseData']['translatedText']
@@ -81,8 +81,14 @@ def create_audio(target_lang):
 
     full_audio = AudioSegment.empty()
 
+    previous_end = 0
+
     temp_file = "output.mp3"
+
     for key in transcript_details:
+        # Add silence between clips for speaker's pauses (in milliseconds)
+        full_audio += AudioSegment.silent(duration=((key - previous_end) * 1000))
+
         tts = gTTS(text=transcript_details[key][2], lang=target_lang)
         tts.save(temp_file)
 
@@ -98,8 +104,10 @@ def create_audio(target_lang):
             overrides={"frame_rate" : int(clip.frame_rate * boost_factor)}
         )
 
-
         full_audio += clip
+
+        # Save end of clip time
+        previous_end = (transcript_details[key][1] + key)
 
         os.remove(temp_file)
 
