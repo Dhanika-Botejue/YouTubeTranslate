@@ -3,13 +3,13 @@ import os
 from pydub import AudioSegment
 from pydub.silence import detect_leading_silence
 import requests
+import subprocess
 import sys
 import whisper
 import yt_dlp
 
-def get_video():
+def get_video(video_id):
     global transcript_details
-    video_id = input("Video ID: ")
 
     # Download audio
     ydl_opts = {
@@ -76,7 +76,7 @@ def trim_silence(audio):
     end_trim = detect_leading_silence(audio.reverse(), silence_threshold=-40)
     return audio[start_trim:len(audio)-end_trim]
 
-def create_audio(target_lang):
+def create_audio(target_lang, export_location):
     global transcript_details
 
     full_audio = AudioSegment.empty()
@@ -112,11 +112,50 @@ def create_audio(target_lang):
         os.remove(temp_file)
 
 
-    full_audio.export("combined.mp3", format="mp3")
+    full_audio.export(export_location, format="mp3")
+
+def download_and_replace_audio(video_id, audio_file, output_file):
+    youtube_url = f"https://www.youtube.com/watch?v={video_id}"
+    
+    try:
+        # Step 1: Download video-only using yt-dlp
+        print("Downloading video (no audio)...")
+        subprocess.run([
+            "yt-dlp",
+            "-f", "bestvideo[ext=mp4]",
+            "--merge-output-format", "mp4",
+            "-o", "temp_video.mp4",
+            youtube_url
+        ], check=True)
+
+        # Step 2: Merge with local audio using FFmpeg
+        print("Merging your audio...")
+        subprocess.run([
+            "ffmpeg",
+            "-i", "temp_video.mp4",  # Downloaded video
+            "-i", audio_file,        # Your audio file
+            "-c:v", "copy",          # Preserve video quality
+            "-c:a", "aac",           # Encode audio to AAC (or "libmp3lame" for MP3)
+            "-map", "0:v:0",         # Use video stream
+            "-map", "1:a:0",         # Use audio stream
+            "-shortest",             # Match shortest duration
+            output_file
+        ], check=True)
+
+        print(f"Success! Output saved to: {output_file}")
+
+    except subprocess.CalledProcessError as e:
+        sys.exit(f"Error: {e}")
+    
+    # Cleanup files
+    if os.path.exists("temp_video.mp4"):
+        os.remove("temp_video.mp4")
+    os.remove(audio_file)
 
 
 transcript_details = {}
-get_video()
+video_id = input("Video ID: ")
+get_video(video_id)
 
 # Must put correct 'language code' e.g. Spanish is es and English is en
 source = input("Source (original) language: ")
@@ -126,8 +165,10 @@ print("Translating...")
 auto_transcribe(source, target)
 
 print("Creating audio file...")
-create_audio(target)
 
+create_audio(target, "combined.mp3")
+
+download_and_replace_audio(video_id, "combined.mp3", "final.mp4")
 print("Enjoy!")
 #print(transcript_details)
 
