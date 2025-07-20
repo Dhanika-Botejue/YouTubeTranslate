@@ -1,3 +1,4 @@
+from flask import Flask, redirect, render_template, request 
 from gtts import gTTS
 import os
 from pydub import AudioSegment
@@ -8,6 +9,25 @@ import sys
 import whisper
 import yt_dlp
 
+app = Flask(__name__)
+
+transcript_details = {}
+
+# Functions
+def video_id_extractor(video_link):
+    start = video_link.find("?") + 3
+    end = video_link.find("&")
+    video_id = video_link[start:end]
+    if end == -1: # no '&' found
+        video_id += video_link[-1]
+    return video_id
+    """
+    Tested video links:
+    https://www.youtube.com/watch?v=3xaVX0cluDo&ab_channel=Kombina
+    https://www.youtube.com/watch?v=2Gvc-_TW5eY&ab_channel=DonsonXie
+    https://www.youtube.com/watch?v=p_QT8C26W_w
+    https://www.youtube.com/watch?v=EZcX0jkZ_JQ&list=RDcewNznnMpqU&index=5
+    """
 def get_video(video_id):
     global transcript_details
 
@@ -153,23 +173,32 @@ def download_and_replace_audio(video_id, audio_file, output_file):
     os.remove(audio_file)
 
 
-transcript_details = {}
-video_id = input("Video ID: ")
-get_video(video_id)
+# Actual Routes
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "GET":
+        return render_template("index.html")
+    else:
+        # Get form submission elements
+        video_link = request.form.get("yt_link")
+        source = request.form.get("source")
+        target = request.form.get("target")
+        video_dst = request.form.get("dst")
+        
+        # Configure video path for download_and_replace audio function
+        video_path = f"static/{video_dst}.mp4"
+        # Configure video dst for render template
+        video_dst = f"{video_dst}.mp4"
 
-# Must put correct 'language code' e.g. Spanish is es and English is en
-source = input("Source (original) language: ")
-target = input("Language to translate to: ")
 
-print("Translating...")
-auto_transcribe(source, target)
+        video_id = video_id_extractor(video_link)
+        get_video(video_id)
 
-print("Creating audio file...")
+        auto_transcribe(source, target)
 
-create_audio(target, "combined.mp3")
+        create_audio(target, "combined.mp3")
 
-download_and_replace_audio(video_id, "combined.mp3", "final.mp4")
-print("Enjoy!")
-#print(transcript_details)
+        download_and_replace_audio(video_id, "combined.mp3", video_path)
 
+        return render_template("video.html", video_dst=video_dst)
 

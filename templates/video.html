@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Player</title>
+</head>
+    <body>
+        <h1>My Video</h1>
+        
+        <!-- Video Player -->
+        <video width="640" height="360" controls>
+            <source src="{{ url_for('static', filename=video_dst) }}" type="video/mp4">
+            Your browser doesn't support HTML5 video.
+        </video>
+    </body>
+</html>
