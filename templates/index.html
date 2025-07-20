@@ -1,12 +1,37 @@
 <!DOCTYPE html>
-
-<html>
-    <title>Index</title>
-    <form action="/" method="post">
-        <input name="yt_link" placeholder="Youtube Video Link" type="text">
-        <input name="source" placeholder="Source Language" type="text">
-        <input name="target" placeholder="Language to Translate to" type="text">
-        <input name="dst" placeholder="MP4 File Destination" type="text">
-        <button type="submit">Translate</button>
-    </form>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Translate</title>
+    <link href="/static/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube Translator</h1>
+        <form action="/" method="post">
+            <div class="form-group">
+                <label for="yt_link">YouTube Video URL</label>
+                <input id="yt_link" name="yt_link" placeholder="https://www.youtube.com/watch?v=..." type="text" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="source">Source Language (e.g., en)</label>
+                <input id="source" name="source" placeholder="source langauge" type="text" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="target">Target Language (e.g., es)</label>
+                <input id="target" name="target" placeholder="target_language" type="text" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="dst">Output Filename (without .mp4)</label>
+                <input id="dst" name="dst" placeholder="translated_video_file_path" type="text" required>
+            </div>
+            
+            <button type="submit">Translate Video</button>
+        </form>
+    </div>
+</body>
 </html>
