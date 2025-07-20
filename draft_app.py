@@ -1,4 +1,3 @@
-from flask import Flask, redirect, render_template, request 
 from gtts import gTTS
 import os
 from pydub import AudioSegment
@@ -9,11 +8,6 @@ import sys
 import whisper
 import yt_dlp
 
-app = Flask(__name__)
-
-transcript_details = {}
-
-# Functions
 def video_id_extractor(video_link):
     start = video_link.find("?") + 3
     end = video_link.find("&")
@@ -173,32 +167,22 @@ def download_and_replace_audio(video_id, audio_file, output_file):
     os.remove(audio_file)
 
 
-# Actual Routes
-@app.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "GET":
-        return render_template("index.html")
-    else:
-        # Get form submission elements
-        video_link = request.form.get("yt_link")
-        source = request.form.get("source")
-        target = request.form.get("target")
-        video_dst = request.form.get("dst")
-        
-        # Configure video path for download_and_replace audio function
-        video_path = f"static/{video_dst}.mp4"
-        # Configure video dst for render template
-        video_dst = f"{video_dst}.mp4"
+transcript_details = {}
+video_link = input("Video Link: ")
+video_id = video_id_extractor(video_link)
+get_video(video_id)
 
+# Must put correct 'language code' e.g. Spanish is es and English is en
+source = input("Source (original) language: ")
+target = input("Language to translate to: ")
 
-        video_id = video_id_extractor(video_link)
-        get_video(video_id)
+print("Translating...")
+auto_transcribe(source, target)
 
-        auto_transcribe(source, target)
+print("Creating audio file...")
 
-        create_audio(target, "combined.mp3")
+create_audio(target, "combined.mp3")
 
-        download_and_replace_audio(video_id, "combined.mp3", video_path)
-
-        return render_template("video.html", video_dst=video_dst)
-
+download_and_replace_audio(video_id, "combined.mp3", "final.mp4")
+print("Enjoy!")
+#print(transcript_details)
