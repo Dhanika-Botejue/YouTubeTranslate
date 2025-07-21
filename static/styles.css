@@ -65,3 +65,37 @@ button {
 button:hover {
     background-color: #cc0000;
 }
+
+.video-wrapper {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;              /* Changed to flex */
+    flex-direction: column;     /* Stack children vertically */
+    align-items: center;        /* Center horizontally */
+    gap: 20px;                  /* Space between elements */
+}
+
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+.home-link {
+    margin-top: 20px;           /* Extra space above link */
+    display: inline-block;      /* Allows text centering */
+    padding: 8px 16px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+    transition: background 0.3s;
+}
+
+.home-link:hover {
+    background: #e0e0e0;
+}
