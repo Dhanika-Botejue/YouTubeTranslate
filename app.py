@@ -1,4 +1,6 @@
-from flask import Flask, redirect, render_template, request 
+from flask import Flask, redirect, render_template, request, session
+from flask_session import Session
+from functools import wraps
 from gtts import gTTS
 import os
 from pydub import AudioSegment
@@ -11,9 +13,23 @@ import yt_dlp
 
 app = Flask(__name__)
 
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
 transcript_details = {}
 
-# Functions
+# Login decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("user_id") is None:
+            return redirect("/login")
+        return f(*args, **kwargs)
+
+    return decorated_function
+
 def video_id_extractor(video_link):
     start = video_link.find("?") + 3
     end = video_link.find("&")
@@ -173,8 +189,9 @@ def download_and_replace_audio(video_id, audio_file, output_file):
     os.remove(audio_file)
 
 
-# Actual Routes
+# ROUTES START FROM HERE
 @app.route("/", methods=["GET", "POST"])
+@login_required
 def index():
     if request.method == "GET":
         return render_template("index.html")
@@ -202,3 +219,21 @@ def index():
 
         return render_template("video.html", video_dst=video_dst)
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    session.clear()     # forget user_id
+
+    if request.method == "GET":
+        return render_template("login.html")
+    else:
+
+        # Query db to get user id
+        session["user_id"] = 1 # temp for now
+        return redirect("/")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+
+    # Redirect user to login form
+    return redirect("/")
