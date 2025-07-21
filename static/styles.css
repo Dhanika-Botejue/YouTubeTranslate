@@ -35,7 +35,8 @@ label {
     color: #333;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="password"] {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
@@ -44,7 +45,8 @@ input[type="text"] {
     box-sizing: border-box;
 }
 
-input[type="text"]:focus {
+input[type="text"]:focus,
+input[type="password"]:focus {
     outline: none;
     border-color: #ff0000;
     box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1);
