@@ -219,6 +219,14 @@ def index():
 
         return render_template("video.html", video_dst=video_dst)
 
+
+@app.route("/register")
+def register():
+    if request.method == "GET":
+        return render_template("register.html")
+    else:
+        pass
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     session.clear()     # forget user_id
