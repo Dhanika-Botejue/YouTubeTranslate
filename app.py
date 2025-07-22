@@ -7,6 +7,7 @@ from pydub import AudioSegment
 from pydub.silence import detect_leading_silence
 import requests
 import subprocess
+import sqlite3
 import sys
 import whisper
 import yt_dlp
@@ -220,12 +221,26 @@ def index():
         return render_template("video.html", video_dst=video_dst)
 
 
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
         return render_template("register.html")
     else:
-        pass
+        username = request.form.get("username")
+        password = request.form.get("password")
+        user_info = [username, password]
+        
+        # SQLite
+        connection = sqlite3.connect("app.db")
+        cursor = connection.cursor()
+        cursor.execute("""
+            INSERT INTO user (username, password) VALUES(?, ?)""", user_info
+        )
+        connection.commit()
+        connection.close()
+
+        return redirect("/")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -234,10 +249,26 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
     else:
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-        # Query db to get user id
-        session["user_id"] = 1 # temp for now
-        return redirect("/")
+        # SQLite
+        connection = sqlite3.connect("app.db")
+        cursor = connection.cursor()
+        rows = cursor.execute("""
+            SELECT id, password
+            FROM user
+            WHERE username = ?
+        """, (username,))
+        
+        check_user_details = rows.fetchone()
+        connection.close()
+        if check_user_details[1] == password:
+            session["user_id"] = check_user_details[0]
+            return redirect("/")
+        
+        # Invalid User
+        return redirect("/login")
 
 @app.route("/logout")
 def logout():
