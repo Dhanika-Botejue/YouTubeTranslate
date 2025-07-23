@@ -244,11 +244,19 @@ def register():
         user_info = [username, password]
         
         # SQLite
+        
         connection = sqlite3.connect("app.db")
         cursor = connection.cursor()
-        cursor.execute("""
-            INSERT INTO user (username, password) VALUES(?, ?)""", user_info
-        )
+        try:
+            cursor.execute("""
+                INSERT INTO user (username, password) VALUES(?, ?)""", user_info
+            )
+        except sqlite3.IntegrityError:
+            connection.close()
+            print("username already in use")
+            msg = "username already in use"
+            return render_template("register.html", msg=msg)
+
         connection.commit()
         connection.close()
 
