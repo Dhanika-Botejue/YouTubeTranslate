@@ -7,6 +7,14 @@
     <link href="/static/styles.css" rel="stylesheet">
 </head>
 <body>
+    <!-- When username already in use, give msg -->
+    <script> 
+        var msg = "{{ msg }}"  
+        if (msg) {
+            alert(msg);
+        } 
+    </script>
+
     <div class="container">
         <h1>Register</h1>
         <form action="/register" method="post">
