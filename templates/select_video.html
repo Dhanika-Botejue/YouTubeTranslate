@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Player</title>
+    <link href="/static/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="video-wrapper">
+        <h1>Select and View Your Video</h1>
+        
+        <!-- Video Selection Dropdown -->
+        <select class="video-selector" id="videoSelector">
+            <option value="" disabled selected>-- Choose a video to watch --</option>
+            {% for video_dst in video_dsts %}
+                <option value="{{ video_dst }}">{{ video_dst }}</option>                     
+            {% endfor %}
+        </select>
+        
+        <!-- Video Player Container (initially hidden) -->
+        <div class="video-container" id="videoContainer" style="display: none;">
+            <video controls id="videoPlayer" width="100%">
+                <!-- Source will be added by JavaScript -->
+                Your browser doesn't support HTML5 video.
+            </video>
+        </div>
+        
+        <a class="home-link" href="/">Return Home</a>
+    </div>
+
+    <script>
+        document.getElementById('videoSelector').addEventListener('change', function() {
+            const selectedVideo = this.value;
+            const videoContainer = document.getElementById('videoContainer');
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            if (selectedVideo) {
+                // Update video source
+                videoPlayer.innerHTML = `
+                    <source src="{{ url_for('static', filename='') }}${selectedVideo}" type="video/mp4">
+                    Your browser doesn't support HTML5 video.
+                `;
+                
+                // Show the video container
+                videoContainer.style.display = 'block';
+                
+                // Load and play the new video
+                videoPlayer.load();
+                videoPlayer.play();
+            } else {
+                // Hide container if no video selected
+                videoContainer.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

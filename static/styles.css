@@ -101,3 +101,20 @@ video {
 .home-link:hover {
     background: #e0e0e0;
 }
+
+.video-selector {
+    margin: 20px auto;
+    padding: 10px;
+    width: 80%;
+    max-width: 500px;
+    display: block;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.video-container {
+    margin: 20px auto;
+    width: 80%;
+    max-width: 800px;
+}

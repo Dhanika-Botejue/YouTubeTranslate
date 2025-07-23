@@ -181,6 +181,19 @@ def download_and_replace_audio(video_id, audio_file, output_file):
 
         print(f"Success! Output saved to: {output_file}")
 
+        # SQLite
+        video_info = [session["user_id"], output_file]
+
+        connection = sqlite3.connect("app.db")
+        cursor = connection.cursor()
+        rows = cursor.execute("""
+            INSERT INTO video (user_id, video_dst)
+            VALUES (?, ?)
+        """, video_info)
+        
+        connection.commit()
+        connection.close()
+
     except subprocess.CalledProcessError as e:
         sys.exit(f"Error: {e}")
     
@@ -276,3 +289,26 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
+
+@app.route("/select_video")
+def select_video():
+    # Get all created videos installed on user's device
+    connection = sqlite3.connect("app.db")
+    cursor = connection.cursor()
+    rows = cursor.execute("""
+        SELECT video_dst
+        FROM video
+        WHERE user_id = ?
+    """, (session["user_id"],))
+    
+    check_user_videos = rows.fetchall()
+    connection.close()
+    
+    proper_video_format = []
+    for i in range(len(check_user_videos)):
+        # Remove static/ from each video_dst as not needed in html file
+        proper_video_format.append(list(check_user_videos[i])[0][7:])
+    print(proper_video_format)
+    
+
+    return render_template("select_video.html", video_dsts=proper_video_format)
