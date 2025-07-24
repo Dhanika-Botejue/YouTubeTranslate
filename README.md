@@ -110,7 +110,7 @@ Users register via `/register` with:
    - **Source**: Original video language
    - **Target**: 99 supported output languages  
 3. Process flow:  
-   ```mermaid
+   ```text
      A[YouTube URL] --> B[Download Audio]
      B --> C[Transcribe with Whisper]
      C --> D[Translate Text]
