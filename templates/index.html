@@ -250,12 +250,20 @@
                 <input id="dst" name="dst" placeholder="translated_video_file_path" type="text" required>
             </div>
             
-            <button type="submit">Translate Video</button>
+            <button id="submitButton" type="submit">Translate Video</button>
         </form>
         <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; margin-top: 20px;">
             <a class="home-link" href="/select_video">Browse Downloads</a>
             <a class="home-link" href="/logout">Log Out</a>
         </div>
     </div>
+
+    <script>
+        document.querySelector("form").addEventListener("submit", function() {
+            const button = document.getElementById("submitButton");
+            button.disabled = true;
+            button.textContent = "Translating..."
+        });
+    </script>
 </body>
 </html>
