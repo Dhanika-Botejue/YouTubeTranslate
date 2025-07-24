@@ -97,7 +97,7 @@ flask run
 ```
 Now you can visit it at:
 ```bash
-http://127.0.0.1:5000
+[http://127.0.0.1:5000](http://127.0.0.1:5000)
 ```
 ### 1. Account Creation  
 Users register via `/register` with:  
