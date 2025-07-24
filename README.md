@@ -1,5 +1,5 @@
 # YouTubeTranslate: AI-Powered Video Translation Platform  
-#### Video Demo: Working on it
+#### (Video Demo)[https://www.youtube.com/watch?v=dQw4w9WgXcQ]
 ## Overview  
 
 YouTubeTranslate is a **full-stack web application** that enables users to translate YouTube videos into different languages while preserving the original video content. Built with Python's Flask framework, the system combines:  
@@ -29,7 +29,7 @@ The Flask application handles:
 - **Database operations** (SQLite for user/video tracking)  
 
 **Key Design Choices**:  
-- Used **global variables** for transcript state to simplify inter-route data sharing (debated using Redis but opted for simplicity)  
+- Used **global variables** for transcript state to simplify inter-route data sharing
 
 
 #### 2. `init_db.py` (Database)  
