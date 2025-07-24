@@ -315,8 +315,9 @@ def select_video():
     proper_video_format = []
     for i in range(len(check_user_videos)):
         # Remove static/ from each video_dst as not needed in html file
-        proper_video_format.append(list(check_user_videos[i])[0][7:])
-    print(proper_video_format)
+        if os.path.exists(str(check_user_videos[i][0])):
+            proper_video_format.append(list(check_user_videos[i])[0][7:])
+    #print(proper_video_format)
     
 
     return render_template("select_video.html", video_dsts=proper_video_format)
