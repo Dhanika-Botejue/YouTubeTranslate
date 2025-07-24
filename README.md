@@ -54,13 +54,13 @@ Custom CSS providing:
 ---
 ## Video Processing Function Description
 #### `app.py` contains several functions that help process the original video and create the new translated verison, such as:
-- `video_id_extractor` - Takes a YouTube Uniform Resource Locator (URL) and returns the ID part of this video that is inside the v=... section of the URL, which is later used by other functions.
-- `get_video` - Takes a YouTube Video ID and uses the `yt_dlp` module to install the audio of the video onto the user's device. Then, OpenAI's `whisper` model trascribes the audio and determines the durations of sentences, effectively creating a transcript of the audio, which is saved in `transcript_details`.
-- `translate` - Takes text, the source language of the text, and the language to translate the text to, and uses `MyMemory` API to get the translated text.
-- `auto_transcribe` - Iterates over the `transcript_details` dictionary, and passes the text sections into `translated`. The translated text is saved within a list inside `transcript_details`.
-- `create_audio` - Creates tiny clips of audio in the language to translate to from using `translated_details`, which uses `gTTS`. These clips are then merged together using `pydub`. Silence between each clip matches original video silence by effectively using the `video_transcript` durations and `pydub`'s `AudioSegment.silent` together. The audio clip is saved in a temporary location.
-- `trim_silence` - Removes excess leading and trailing silence (not the wanted silence) that are created between clips when `pydub` merges two clips together.
-- `download_and_replace_audio` - Downloads the original video without audio, and merges the translated audio clip with this new download together, exporting it to a `.mp3` file. The `video_dst` and `user_id` of the person who translated the video are added into the `SQLite` database.
+- **`video_id_extractor`** - Takes a YouTube Uniform Resource Locator (URL) and returns the ID part of this video that is inside the v=... section of the URL, which is later used by other functions.
+- **`get_video`** - Takes a YouTube Video ID and uses the `yt_dlp` module to install the audio of the video onto the user's device. Then, OpenAI's `whisper` model trascribes the audio and determines the durations of sentences, effectively creating a transcript of the audio, which is saved in `transcript_details`.
+- **`translate`** - Takes text, the source language of the text, and the language to translate the text to, and uses `MyMemory` API to get the translated text.
+- **`auto_transcribe`** - Iterates over the `transcript_details` dictionary, and passes the text sections into `translated`. The translated text is saved within a list inside `transcript_details`.
+- **`create_audio`** - Creates tiny clips of audio in the language to translate to from using `translated_details`, which uses `gTTS`. These clips are then merged together using `pydub`. Silence between each clip matches original video silence by effectively using the `video_transcript` durations and `pydub`'s `AudioSegment.silent` together. The audio clip is saved in a temporary location.
+- **`trim_silence`** - Removes excess leading and trailing silence (not the wanted silence) that are created between clips when `pydub` merges two clips together.
+- **`download_and_replace_audio`** - Downloads the original video without audio, and merges the translated audio clip with this new download together, exporting it to a `.mp3` file. The `video_dst` and `user_id` of the person who translated the video are added into the `SQLite` database.
 ---
 
 ## Setup Guide  
