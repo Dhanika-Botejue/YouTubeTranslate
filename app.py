@@ -321,3 +321,6 @@ def select_video():
     
 
     return render_template("select_video.html", video_dsts=proper_video_format)
+
+if __name__ == "__main__":
+    app.run()
