@@ -6,3 +6,4 @@ requests==2.31.0
 whisper-openai==20231117
 yt-dlp==2025.6.30
 ffmpeg-python==0.2.0
+gunicorn
